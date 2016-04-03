@@ -25,8 +25,8 @@ namespace ZeldaSummative
             f.Controls.Remove(this);
 
             //if there is a wrong press then game over
-            GameScreen gs = new GameScreen();
-            f.Controls.Add(gs);
+            MainScreen ms = new MainScreen();
+            f.Controls.Add(ms);
         }
 
         private void gameTimer_Tick(object sender, EventArgs e)
