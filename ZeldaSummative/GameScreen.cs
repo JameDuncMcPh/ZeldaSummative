@@ -36,7 +36,7 @@ namespace ZeldaSummative
         //ints
         int monsterTimer = 500;
         int currentX, currentY = 0;
-        int score = 0;
+        public static int score = 0;
         #endregion
 
         public GameScreen()
@@ -89,13 +89,13 @@ namespace ZeldaSummative
 
             if (spaceDown == true && mag.Count() < 4)
             {
-                Bullet b = new Bullet(ari.x, ari.y, 2, 10, ari.direction);
+                Bullet b = new Bullet(ari.x + (ari.size/2), ari.y + (ari.size/2), 2, 10, ari.direction);
                 mag.Add(b);
             }
 
             if (monsterTimer == 0)
             {
-                Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 10, 1 * Convert.ToInt16(score * .5), 0, imageMonster);
+                Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 10, 1 + Convert.ToInt16(score * .5), 0, imageMonster);
                 horde.Add(m);
                 monsterTimer = 250;
                 score++;
@@ -164,6 +164,9 @@ namespace ZeldaSummative
                     }
                 }
             }
+
+            scoreLabel.Text = Convert.ToString(score);
+
             Refresh();
         }
 

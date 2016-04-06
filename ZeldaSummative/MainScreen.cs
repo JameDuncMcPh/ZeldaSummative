@@ -20,6 +20,8 @@ namespace ZeldaSummative
         private void MainScreen_Load(object sender, EventArgs e)
         {
             this.Focus();
+
+            label1.Text = "Your Score is: " + Convert.ToString(GameScreen.score);
         }
 
         private void button1_Click(object sender, EventArgs e)
