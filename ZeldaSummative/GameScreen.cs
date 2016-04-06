@@ -19,7 +19,7 @@ namespace ZeldaSummative
         List<Monster> horde = new List<Monster>();
 
         //Our hero
-        Player aeri;
+        Player ari;
 
         //images array
         Image[] imagePlayer = { Properties.Resources._0, Properties.Resources._1, Properties.Resources._2, Properties.Resources._3 };
@@ -28,12 +28,15 @@ namespace ZeldaSummative
 
         //bool
         bool leftArrowDown, downArrowDown, rightArrowDown, upArrowDown, spaceDown = false;
+        bool broken = false;
 
         //Randoms
         Random r = new Random();
 
         //ints
         int monsterTimer = 500;
+        int currentX, currentY = 0;
+        int score = 0;
         #endregion
 
         public GameScreen()
@@ -45,45 +48,57 @@ namespace ZeldaSummative
         {
             this.Focus();
 
-            aeri = new Player(250, 250, 15, 25, 0, imagePlayer);
-
-            Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 25, 20, 0, imageMonster);
+            ari = new Player(250, 250, 20, 2, 0, imagePlayer);
+            
+            Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 10, 1, 0, imageMonster);
             horde.Add(m);
 
             buttons = new bool[] { downArrowDown, leftArrowDown, rightArrowDown , upArrowDown };
         }
 
-        private void GameScreen_Paint(object sender, PaintEventArgs e)
-        {
-            e.Graphics.DrawImage(aeri.images[aeri.direction], aeri.x, aeri.y);
-
-            foreach (Monster m in horde)
-            {
-                e.Graphics.DrawImage(m.images[m.direction], m.x, m.y);
-            }
-        }
-
         private void gameTimer_Tick(object sender, EventArgs e)
         {
-            for (int i = 0; i < 0; i++)
+            currentX = ari.x;
+            currentY = ari.y;
+
+            for (int i = 0; i < 4; i++)
             {
                 if (buttons[i] == true)
-                {
-                    aeri.direction = i;
-                    aeri.move(aeri);
+                { 
+                    ari.direction = i;
+                    ari.move(ari);
+
+                    if (ari.x + ari.size > this.Width || ari.x < 0 || ari.y + ari.size > this.Height || ari.y < 0)
+                    {
+                        ari.x = currentX;
+                        ari.y = currentY;
+                    }
                 }
             }
 
-            if (spaceDown == true && mag.Count() <= 4)
+            foreach (Bullet b in mag)
             {
-                Bullet b = new Bullet(aeri.x, aeri.y, 2, 30, aeri.direction);
+                b.move(b);
+
+                if (b.x > this.Width || b.x < 0 || b.y > this.Height || b.y < 0)
+                {
+                    mag.Remove(b);
+                    break;
+                }
+            }
+
+            if (spaceDown == true && mag.Count() < 4)
+            {
+                Bullet b = new Bullet(ari.x, ari.y, 2, 10, ari.direction);
+                mag.Add(b);
             }
 
             if (monsterTimer == 0)
             {
-                Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 25, 20, 0, imageMonster);
+                Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 10, 1 * Convert.ToInt16(score * .5), 0, imageMonster);
                 horde.Add(m);
                 monsterTimer = 250;
+                score++;
             }
             else
             {
@@ -91,9 +106,30 @@ namespace ZeldaSummative
             }
 
             foreach (Monster m in horde)
-            {
-                if (aeri.collsion(aeri, m))
+            {                
+                foreach (Bullet b in mag)
                 {
+                    if (m.collsion(m, b))
+                    {
+                        horde.Remove(m);
+                        mag.Remove(b);
+                        broken = true;
+                        score++;
+                        break;
+                    }
+                }
+                if (broken)
+                {
+                    broken = false;
+                    break;
+                }
+            }
+
+            foreach (Monster m in horde)
+            {
+                if (ari.collsion(ari, m))
+                {
+                    gameTimer.Stop();
                     // f is the form that this control is on - ("this" is the current User Control)
                     Form f = this.FindForm();
                     f.Controls.Remove(this);
@@ -101,17 +137,50 @@ namespace ZeldaSummative
                     //if there is a wrong press then game over
                     MainScreen ms = new MainScreen();
                     f.Controls.Add(ms);
+                    break;
                 }
-
-                foreach (Bullet b in mag)
+                else
                 {
-                    if (m.collsion(m, b))
+                    if (ari.x - m.x > 0)
                     {
-                        horde.Remove(m);
-                        mag.Remove(b);
-                        break;
+                        m.direction = 2;
+                        m.move(m);
+                    }
+                    else if (ari.x - m.x < 0)
+                    {
+                        m.direction = 1;
+                        m.move(m);
+                    }
+
+                    if (ari.y - m.y > 0)
+                    {
+                        m.direction = 0;
+                        m.move(m);
+                    }
+                    else if (ari.y - m.y < 0)
+                    {
+                        m.direction = 3;
+                        m.move(m);
                     }
                 }
+            }
+            Refresh();
+        }
+
+        private void GameScreen_Paint(object sender, PaintEventArgs e)
+        {
+            SolidBrush bulletbrush = new SolidBrush(Color.DarkOrange);
+
+            e.Graphics.DrawImage(ari.images[ari.direction], ari.x, ari.y, ari.size, ari.size);
+
+            foreach (Monster m in horde)
+            {
+                e.Graphics.DrawImage(m.images[m.direction], m.x, m.y, m.size, m.size);
+            }
+
+            foreach (Bullet b in mag)
+            {
+                e.Graphics.FillRectangle(bulletbrush, b.x, b.y, b.size, b.size);
             }
 
         }
@@ -121,19 +190,20 @@ namespace ZeldaSummative
             switch (e.KeyCode)
             {
                 case Keys.Left:
-                    leftArrowDown = true;
+                    buttons[1] = true;
                     break;
                 case Keys.Down:
-                    downArrowDown = true;
+                    buttons[0] = true;
                     break;
                 case Keys.Right:
-                    rightArrowDown = true;
+                    buttons[2] = true;
                     break;
                 case Keys.Up:
-                    upArrowDown = true;
+                    buttons[3] = true;
                     break;
                 case Keys.Space:
                     spaceDown = true;
+                    break;
                 default:
                     break;
             }
@@ -144,19 +214,20 @@ namespace ZeldaSummative
             switch (e.KeyCode)
             {
                 case Keys.Left:
-                    leftArrowDown = false;
+                    buttons[1] = false;
                     break;
                 case Keys.Down:
-                    downArrowDown = false;
+                    buttons[0] = false;
                     break;
                 case Keys.Right:
-                    rightArrowDown = false;
+                    buttons[2] = false;
                     break;
                 case Keys.Up:
-                    upArrowDown = false;
+                    buttons[3] = false;
                     break;
                 case Keys.Space:
                     spaceDown = false;
+                    break;
                 default:
                     break;
             }
