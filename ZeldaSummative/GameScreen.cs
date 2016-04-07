@@ -12,6 +12,12 @@ namespace ZeldaSummative
 {
     public partial class GameScreen : UserControl
     {
+        /// <summary>
+        /// Made by Duncan McPHerson
+        /// April 7 2016
+        /// A simple game using classes
+        /// </summary>
+        
         #region Variables
         //Lists /arrays
         bool[] buttons = new bool[4];
@@ -37,6 +43,7 @@ namespace ZeldaSummative
         int monsterTimer = 500;
         int currentX, currentY = 0;
         public static int score = 0;
+        public static int highscore = 0;
         #endregion
 
         public GameScreen()
@@ -46,55 +53,73 @@ namespace ZeldaSummative
 
         private void GameScreen_Load(object sender, EventArgs e)
         {
+            //reset the score and save a copy of the highscore when the menu closes to make sure not to lose it
+            score = 0;
+            highscore = MainScreen.highscore;
+
+            //set this screen as the focus
             this.Focus();
 
+            //make the player
             ari = new Player(250, 250, 20, 2, 0, imagePlayer);
             
+            //make the first monster
             Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 10, 1, 0, imageMonster);
             horde.Add(m);
 
+            //add the button array
             buttons = new bool[] { downArrowDown, leftArrowDown, rightArrowDown , upArrowDown };
         }
 
         private void gameTimer_Tick(object sender, EventArgs e)
         {
+            //set the current postion ari to the varialbes
             currentX = ari.x;
             currentY = ari.y;
 
+            //check if a button is pressed 
             for (int i = 0; i < 4; i++)
             {
                 if (buttons[i] == true)
                 { 
+                    //then move ari
                     ari.direction = i;
                     ari.move(ari);
 
                     if (ari.x + ari.size > this.Width || ari.x < 0 || ari.y + ari.size > this.Height || ari.y < 0)
                     {
+                        //but if he goes to far then return him to previous postions
                         ari.x = currentX;
                         ari.y = currentY;
                     }
                 }
             }
 
+            //move each bullet
             foreach (Bullet b in mag)
             {
                 b.move(b);
 
                 if (b.x > this.Width || b.x < 0 || b.y > this.Height || b.y < 0)
                 {
+                    //and remove it if it goes to far
                     mag.Remove(b);
                     break;
                 }
             }
 
+            //check if you can fire a bullet
             if (spaceDown == true && mag.Count() < 4)
             {
+                //fire one
                 Bullet b = new Bullet(ari.x + (ari.size/2), ari.y + (ari.size/2), 2, 10, ari.direction);
                 mag.Add(b);
             }
 
+            //see if you can create a new monster
             if (monsterTimer == 0)
             {
+                //then make one and up the score
                 Monster m = new Monster(r.Next(this.Width), r.Next(this.Height), 10, 1 + Convert.ToInt16(score * .5), 0, imageMonster);
                 horde.Add(m);
                 monsterTimer = 250;
@@ -102,6 +127,7 @@ namespace ZeldaSummative
             }
             else
             {
+                //or reduce the timer
                 monsterTimer--;
             }
 
@@ -109,8 +135,10 @@ namespace ZeldaSummative
             {                
                 foreach (Bullet b in mag)
                 {
+                    //check to see if a monster was killed by a bullet
                     if (m.collsion(m, b))
                     {
+                        //then remove both and increase the score
                         horde.Remove(m);
                         mag.Remove(b);
                         broken = true;
@@ -125,6 +153,7 @@ namespace ZeldaSummative
                 }
             }
 
+            //check to see if ari hits a monster
             foreach (Monster m in horde)
             {
                 if (ari.collsion(ari, m))
@@ -141,6 +170,7 @@ namespace ZeldaSummative
                 }
                 else
                 {
+                    //else move towards ari
                     if (ari.x - m.x > 0)
                     {
                         m.direction = 2;
@@ -165,13 +195,16 @@ namespace ZeldaSummative
                 }
             }
 
+            //show score
             scoreLabel.Text = Convert.ToString(score);
 
+            //refresh
             Refresh();
         }
 
         private void GameScreen_Paint(object sender, PaintEventArgs e)
         {
+            //paint everthing
             SolidBrush bulletbrush = new SolidBrush(Color.DarkOrange);
 
             e.Graphics.DrawImage(ari.images[ari.direction], ari.x, ari.y, ari.size, ari.size);
@@ -190,6 +223,7 @@ namespace ZeldaSummative
 
         private void GameScreen_Keys(object sender, PreviewKeyDownEventArgs e)
         {
+            //check if key is pressed and then set true
             switch (e.KeyCode)
             {
                 case Keys.Left:
@@ -214,6 +248,7 @@ namespace ZeldaSummative
 
         private void GameScreen_KeyUp(object sender, KeyEventArgs e)
         {
+            //check if key is not being pressed anf set it false
             switch (e.KeyCode)
             {
                 case Keys.Left:

@@ -12,6 +12,8 @@ namespace ZeldaSummative
 {
     public partial class MainScreen : UserControl
     {
+        public static int highscore = 0;
+
         public MainScreen()
         {
             InitializeComponent();
@@ -22,6 +24,13 @@ namespace ZeldaSummative
             this.Focus();
 
             label1.Text = "Your Score is: " + Convert.ToString(GameScreen.score);
+
+            if (GameScreen.score > highscore)
+            {
+                highscore = GameScreen.score;
+            }
+
+            scoreLabel.Text = "HIGHSCORE: " + Convert.ToString(highscore);
         }
 
         private void button1_Click(object sender, EventArgs e)
