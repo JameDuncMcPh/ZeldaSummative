@@ -9,11 +9,12 @@ namespace ZeldaSummative
 {
     class Monster
     {
-        public int x, y, size, speed, direction;
 
-        
+        //Variables
+        public int x, y, size, speed, direction;
         public Image[] images = new Image[4];
 
+        //creating the monster class
         public Monster(int _x, int _y, int _size, int _speed, int _direction, Image[] _images)
         {
             x = _x;
@@ -24,6 +25,7 @@ namespace ZeldaSummative
             images = _images;
         }
 
+        //methoed to automattically move the 
         public void move(Monster a)
         {
             switch (a.direction)
@@ -50,6 +52,7 @@ namespace ZeldaSummative
             }
         }
 
+        //methoed to check if there is a collsion between a bullet and a monster
         public bool collsion(Monster a, Bullet b)
         {
             Rectangle pa = new Rectangle(a.x, a.y, a.size, a.size);

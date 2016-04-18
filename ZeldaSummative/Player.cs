@@ -9,10 +9,11 @@ namespace ZeldaSummative
 {
     class Player
     {
-        public int x, y, size, speed, direction;
-               
+        //variables
+        public int x, y, size, speed, direction;               
         public Image[] images = new Image[4];
 
+        //creating the player class
         public Player(int _x, int _y, int _size, int _speed, int _direction, Image[] _images)
         {
             x = _x;
@@ -22,7 +23,8 @@ namespace ZeldaSummative
             direction = _direction;
             images = _images;
         }
-
+        
+        //methoed to move the player around
         public void move(Player a)
         {
             switch (a.direction)
@@ -49,6 +51,7 @@ namespace ZeldaSummative
             }
         }
 
+        //moethoed to detect collsion between player and monsters
         public bool collsion(Player a, Monster b)
         {
             Rectangle pa = new Rectangle(a.x, a.y, a.size, a.size);

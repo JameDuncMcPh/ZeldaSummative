@@ -8,8 +8,10 @@ namespace ZeldaSummative
 {
     class Bullet
     {
+        //variables
         public int x, y, size, speed, direction;
 
+        //create the bullet class
         public Bullet(int _x, int _y, int _size, int _speed, int _direction)
         {
             x = _x;
@@ -19,6 +21,7 @@ namespace ZeldaSummative
             direction = _direction;
         }
 
+        //mehtoed to move the bullet around
         public void move(Bullet a)
         {
             switch (a.direction)
